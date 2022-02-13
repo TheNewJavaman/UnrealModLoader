@@ -1,5 +1,6 @@
 #pragma once
 #include "Mod/Mod.h"
+#include "openvr/openvr.h";
 
 class ExampleMod : public Mod
 {
@@ -40,6 +41,14 @@ public:
 	virtual void DrawImGui() override;
 
 private:
+	void InitVR(ID3D11Device* pDevice, ID3D11RenderTargetView* pFlatRenderTargetView);
+
+	bool bVRStarted;
+	vr::IVRSystem* pSystem;
+	vr::IVRCompositor* pCompositor;
+	ID3D11RenderTargetView* pLeftRenderViewTarget;
+	ID3D11RenderTargetView* pRightRenderViewTarget;
+
 	// If you have a BP Mod Actor, This is a straight refrence to it
 	UE4::AActor* ModActor;
 };
