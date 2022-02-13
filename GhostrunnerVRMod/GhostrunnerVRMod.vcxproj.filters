@@ -22,7 +22,7 @@
     <ClCompile Include="..\UnrealEngineModLoader\UE4\CoreUObject_functions.cpp">
       <Filter>UE4</Filter>
     </ClCompile>
-    <ClCompile Include="ExampleMod.cpp">
+    <ClCompile Include="GhostrunnerVRMod.cpp">
       <Filter>Mod</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,7 +30,7 @@
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp">
       <Filter>UE4</Filter>
     </ClInclude>
-    <ClInclude Include="ExampleMod.h">
+    <ClInclude Include="GhostrunnerVRMod.h">
       <Filter>Mod</Filter>
     </ClInclude>
   </ItemGroup>

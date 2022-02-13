@@ -1,10 +1,10 @@
 #include <windows.h>
-#include "ExampleMod.h"
+#include "GhostrunnerVRMod.h"
 //Mod* CoreMod;
 
 void CreateMod()
 {
-    auto CoreMod = new ExampleMod();
+    auto CoreMod = new GhostrunnerVRMod();
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule,
