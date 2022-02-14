@@ -153,10 +153,12 @@
     <ClCompile Include="..\UnrealEngineModLoader\UE4\Basic.cpp" />
     <ClCompile Include="..\UnrealEngineModLoader\UE4\CoreUObject_functions.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="DX11Manager.cpp" />
     <ClCompile Include="ExampleMod.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp" />
+    <ClInclude Include="DX11Manager.h" />
     <ClInclude Include="ExampleMod.h" />
   </ItemGroup>
   <ItemGroup>

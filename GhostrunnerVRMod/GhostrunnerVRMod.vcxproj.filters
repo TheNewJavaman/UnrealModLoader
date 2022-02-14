@@ -25,12 +25,18 @@
     <ClCompile Include="ExampleMod.cpp">
       <Filter>Mod</Filter>
     </ClCompile>
+    <ClCompile Include="DX11Manager.cpp">
+      <Filter>Mod</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp">
       <Filter>UE4</Filter>
     </ClInclude>
     <ClInclude Include="ExampleMod.h">
+      <Filter>Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Manager.h">
       <Filter>Mod</Filter>
     </ClInclude>
   </ItemGroup>

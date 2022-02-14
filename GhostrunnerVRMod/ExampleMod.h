@@ -1,11 +1,13 @@
 #pragma once
+
 #include "Mod/Mod.h"
-#include "openvr/openvr.h";
+#include "openvr/openvr.h"
+#include "DX11Manager.h"
+#include "Utilities/MinHook.h"
 
 class ExampleMod : public Mod
 {
 public:
-
 	//Basic Mod Info
 	ExampleMod()
 	{
@@ -40,17 +42,16 @@ public:
 	//Call ImGui Here (CALLED EVERY FRAME ON DX HOOK)
 	virtual void DrawImGui() override;
 
+	typedef HRESULT(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+	D3D11PresentHook phookD3D11Present = NULL;
+
+	DWORD_PTR* pSwapChainVtable = NULL;
+	ID3D11Device* pDevice = NULL;
+	ID3D11DeviceContext* pContext = NULL;
+	ID3D11RenderTargetView* pRenderTargetView = NULL;
+
 private:
-	void InitVR(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, ID3D11RenderTargetView* pFlatRTV);
-
-	bool bVRStarted;
-	vr::IVRSystem* pSystem;
-	vr::IVRCompositor* pCompositor;
-
-	ID3D11RenderTargetView* pLeftRTV;
-	ID3D11Texture2D* pLeftTexture;
-	ID3D11RenderTargetView* pRightRTV;
-	ID3D11Texture2D* pRightTexture;
+	DX11Manager* pDXManager;
 
 	// If you have a BP Mod Actor, This is a straight refrence to it
 	UE4::AActor* ModActor;
