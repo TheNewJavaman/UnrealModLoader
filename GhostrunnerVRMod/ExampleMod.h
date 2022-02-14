@@ -45,9 +45,11 @@ private:
 
 	bool bVRStarted;
 	vr::IVRSystem* pSystem;
-	vr::IVRCompositor* pCompositor;
-	ID3D11RenderTargetView* pLeftRenderViewTarget;
-	ID3D11RenderTargetView* pRightRenderViewTarget;
+
+	ID3D11RenderTargetView* pLeftRTV;
+	ID3D11Texture2D* pLeftTexture;
+	ID3D11RenderTargetView* pRightRTV;
+	ID3D11Texture2D* pRightTexture;
 
 	// If you have a BP Mod Actor, This is a straight refrence to it
 	UE4::AActor* ModActor;
