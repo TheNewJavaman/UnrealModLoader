@@ -50,24 +50,12 @@ void ExampleMod::DX11Present(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 {
 	if (!bVRStarted)
 	{
-		InitVR(pDevice, pRenderTargetView);
+		InitVR(pDevice, pContext, pRenderTargetView);
 	}
 	else
 	{
 		vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
-		vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
-
-		ID3D11RenderTargetView* originalRTVs[1];
-		ID3D11DepthStencilView* originalDSV;
-		pContext->OMGetRenderTargets(1, originalRTVs, &originalDSV);
-
-		ID3D11RenderTargetView* vrRTVs[]{pLeftRTV, pRightRTV};
-		pContext->OMSetRenderTargets(2, vrRTVs, originalDSV);
-		pContext->Draw(10'000, 0);
-
-		pContext->OMSetRenderTargets(1, &originalRTVs[0], originalDSV);
-		originalRTVs[0]->Release();
-		if (originalDSV != nullptr) originalDSV->Release();
+		pCompositor->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
 		vr::VRTextureBounds_t bounds;
 		bounds.uMin = 0.0f;
@@ -76,10 +64,9 @@ void ExampleMod::DX11Present(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 		bounds.vMax = 1.0f;
 
 		vr::Texture_t leftTexture = { (void*)pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-		vr::EVRCompositorError error = vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
-		Log::Info("[GhostrunnerVRMod] VR compositor error: " + std::to_string(error));
+		pCompositor->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
 		vr::Texture_t rightTexture = { (void*)pRightTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-		vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
+		pCompositor->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
 	}
 }
 
@@ -91,10 +78,11 @@ void ExampleMod::DrawImGui()
 {
 }
 
-void ExampleMod::InitVR(ID3D11Device* pDevice, ID3D11RenderTargetView* pFlatRTV)
+void ExampleMod::InitVR(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, ID3D11RenderTargetView* pFlatRTV)
 {
 	vr::HmdError error;
 	pSystem = vr::VR_Init(&error, vr::VRApplication_Scene);
+	pCompositor = vr::VRCompositor();
 	uint32_t pnWidth;
 	uint32_t pnHeight;
 	pSystem->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight);
@@ -120,6 +108,26 @@ void ExampleMod::InitVR(ID3D11Device* pDevice, ID3D11RenderTargetView* pFlatRTV)
 	pDevice->CreateTexture2D(&textureDesc, NULL, &pRightTexture);
 	pDevice->CreateRenderTargetView(pRightTexture, &rtvDesc, &pRightRTV);
 	Log::Info("[GhostrunnerVRMod] Initialized VR render view targets");
+
+	ID3D11RenderTargetView* originalRTVs[3];
+	ID3D11DepthStencilView* originalDSV;
+	pContext->OMGetRenderTargets(3, originalRTVs, &originalDSV);
+	if (originalRTVs[1] == nullptr)
+	{
+		ID3D11RenderTargetView* newRTVs[]{ originalRTVs[0], pLeftRTV, pRightRTV };
+		pContext->OMSetRenderTargets(3, newRTVs, originalDSV);
+	}
+	else
+	{
+		originalRTVs[1]->Release();
+		originalRTVs[2]->Release();
+	}
+	originalRTVs[0]->Release();
+	if (originalDSV != nullptr)
+	{
+		originalDSV->Release();
+	}
+	Log::Info("[GhostrunnerVRMod] Added VR render view targets to the graphics pipeline");
 
 	bVRStarted = true;
 }

@@ -41,10 +41,11 @@ public:
 	virtual void DrawImGui() override;
 
 private:
-	void InitVR(ID3D11Device* pDevice, ID3D11RenderTargetView* pFlatRenderTargetView);
+	void InitVR(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, ID3D11RenderTargetView* pFlatRTV);
 
 	bool bVRStarted;
 	vr::IVRSystem* pSystem;
+	vr::IVRCompositor* pCompositor;
 
 	ID3D11RenderTargetView* pLeftRTV;
 	ID3D11Texture2D* pLeftTexture;
