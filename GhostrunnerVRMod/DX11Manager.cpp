@@ -257,21 +257,21 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 	pDXManager->pContextVTable = (DWORD_PTR*)pDXManager->pContextVTable[0];
 
 	pDXManager->pHookD3D11Present = (D3D11PresentHook)pDXManager->pSwapChainVTable[8];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11Present, &HookDX11Present, &D3D11Present, "DX11-Present");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11Present, &HookDX11Present, &D3D11Present, "VR-DX11-Present");
 	pDXManager->pHookD3D11Draw = (D3D11DrawHook)pDXManager->pContextVTable[13];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11Draw, &HookDX11Draw, &D3D11Draw, "DX11-Draw");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11Draw, &HookDX11Draw, &D3D11Draw, "VR-DX11-Draw");
 	pDXManager->pHookD3D11DrawIndexed = (D3D11DrawIndexedHook)pDXManager->pContextVTable[12];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexed, &HookDX11DrawIndexed, &D3D11DrawIndexed, "DX11-DrawIndexed");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexed, &HookDX11DrawIndexed, &D3D11DrawIndexed, "VR-DX11-DrawIndexed");
 	pDXManager->pHookD3D11DrawInstanced = (D3D11DrawInstancedHook)pDXManager->pContextVTable[21];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawInstanced, &HookDX11DrawInstanced, &D3D11DrawInstanced, "DX11-DrawInstanced");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawInstanced, &HookDX11DrawInstanced, &D3D11DrawInstanced, "VR-DX11-DrawInstanced");
 	pDXManager->pHookD3D11DrawIndexedInstanced = (D3D11DrawIndexedInstancedHook)pDXManager->pContextVTable[20];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexedInstanced, &HookDX11DrawIndexedInstanced, &D3D11DrawIndexedInstanced, "DX11-DrawIndexedInstanced");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexedInstanced, &HookDX11DrawIndexedInstanced, &D3D11DrawIndexedInstanced, "VR-DX11-DrawIndexedInstanced");
 	pDXManager->pHookD3D11DrawAuto = (D3D11DrawAutoHook)pDXManager->pContextVTable[38];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawAuto, &HookDX11DrawAuto, &D3D11DrawAuto, "DX11-DrawAuto");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawAuto, &HookDX11DrawAuto, &D3D11DrawAuto, "VR-DX11-DrawAuto");
 	pDXManager->pHookD3D11DrawInstancedIndirect = (D3D11DrawInstancedIndirectHook)pDXManager->pContextVTable[40];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawInstancedIndirect, &HookDX11DrawInstancedIndirect, &D3D11DrawInstancedIndirect, "DX11-DrawInstancedIndirect");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawInstancedIndirect, &HookDX11DrawInstancedIndirect, &D3D11DrawInstancedIndirect, "VR-DX11-DrawInstancedIndirect");
 	pDXManager->pHookD3D11DrawIndexedInstancedIndirect = (D3D11DrawIndexedInstancedIndirectHook)pDXManager->pContextVTable[39];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexedInstancedIndirect, &HookDX11DrawIndexedInstancedIndirect, &D3D11DrawIndexedInstancedIndirect, "DX11-DrawIndexedInstancedIndirect");
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexedInstancedIndirect, &HookDX11DrawIndexedInstancedIndirect, &D3D11DrawIndexedInstancedIndirect, "VR-DX11-DrawIndexedInstancedIndirect");
 
 	DWORD dPresentOld;
 	VirtualProtect(pDXManager->pHookD3D11Present, 2, PAGE_EXECUTE_READWRITE, &dPresentOld);
