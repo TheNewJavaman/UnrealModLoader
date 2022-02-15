@@ -72,7 +72,7 @@ void SubmitToVR()
 	vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
 }
 
-void DoHookOperations(ID3D11DeviceContext* pContext, std::function<void(void)> drawFunc)
+void DoDrawOperations(ID3D11DeviceContext* pContext, std::function<void(void)> drawFunc)
 {
 	ExampleMod* mod = ExampleMod::GetMod();
 	if (!mod->bIsVrInitialized && !InitVR())
@@ -80,27 +80,38 @@ void DoHookOperations(ID3D11DeviceContext* pContext, std::function<void(void)> d
 		return;
 	}
 	DX11Manager* dxManager = mod->pDXManager;
-	//if (!dxManager->bAreRTVsSet)
-	//{
-		ID3D11RenderTargetView* oldRTVs[1];
-		ID3D11DepthStencilView* oldDSV;
-		// TODO: Find out how many RTVs Ghostrunner uses
-		pContext->OMGetRenderTargets(1, oldRTVs, &oldDSV);
-		ID3D11RenderTargetView* vrRTVs[]{ mod->pLeftRTV, mod->pRightRTV };
+	ID3D11RenderTargetView* oldRTVs[1];
+	ID3D11DepthStencilView* oldDSV;
+	// TODO: Find out how many RTVs Ghostrunner uses
+	pContext->OMGetRenderTargets(1, oldRTVs, &oldDSV);
+	ID3D11RenderTargetView* vrRTVs[]{ mod->pLeftRTV };
+	if (oldRTVs[0] != vrRTVs[0])
+	{
 		pContext->OMSetRenderTargets(1, vrRTVs, oldDSV);
-		drawFunc();
-		if (oldRTVs[0]) oldRTVs[0]->Release();
-		if (oldDSV) oldDSV->Release();
-	//	dxManager->bAreRTVsSet = true;
-	//}
+	}
+	drawFunc();
+	if (oldRTVs[0]) oldRTVs[0]->Release();
+	if (oldDSV) oldDSV->Release();
+}
+
+HRESULT(*D3D11Present) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+
+HRESULT __stdcall HookDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
+{
+	ExampleMod* mod = ExampleMod::GetMod();
+	if (!mod->bIsVrInitialized && !InitVR())
+	{
+		return S_OK;
+	}
 	SubmitToVR();
+	return S_OK;
 }
 
 HRESULT(*D3D11Draw) (ID3D11DeviceContext* pContext, UINT VertexCount, UINT StartVertexLocation);
 
 HRESULT __stdcall HookDX11Draw(ID3D11DeviceContext* pContext, UINT VertexCount, UINT StartVertexLocation)
 {
-	DoHookOperations(pContext, [pContext, VertexCount, StartVertexLocation]() 
+	DoDrawOperations(pContext, [pContext, VertexCount, StartVertexLocation]() 
 		{
 			D3D11Draw(pContext, VertexCount, StartVertexLocation); 
 		}
@@ -112,7 +123,7 @@ HRESULT(*D3D11DrawIndexed) (ID3D11DeviceContext* pContext, UINT IndexCount, UINT
 
 HRESULT __stdcall HookDX11DrawIndexed(ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
 {
-	DoHookOperations(pContext, [pContext, IndexCount, StartIndexLocation, BaseVertexLocation]()
+	DoDrawOperations(pContext, [pContext, IndexCount, StartIndexLocation, BaseVertexLocation]()
 		{
 			D3D11DrawIndexed(pContext, IndexCount, StartIndexLocation, BaseVertexLocation);
 		}
@@ -124,7 +135,7 @@ HRESULT(*D3D11DrawInstanced) (ID3D11DeviceContext* pContext, UINT VertexCountPer
 
 HRESULT __stdcall HookDX11DrawInstanced(ID3D11DeviceContext* pContext, UINT VertexCountPerInstance, UINT InstanceCount, UINT StartVertexLocation, UINT StartInstanceLocation)
 {
-	DoHookOperations(pContext, [pContext, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation]()
+	DoDrawOperations(pContext, [pContext, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation]()
 		{
 			D3D11DrawInstanced(pContext, VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation);
 		}
@@ -136,7 +147,7 @@ HRESULT(*D3D11DrawIndexedInstanced) (ID3D11DeviceContext* pContext, UINT IndexCo
 
 HRESULT __stdcall HookDX11DrawIndexedInstanced(ID3D11DeviceContext* pContext, UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation)
 {
-	DoHookOperations(pContext, [pContext, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation]()
+	DoDrawOperations(pContext, [pContext, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation]()
 		{
 			D3D11DrawIndexedInstanced(pContext, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
 		}
@@ -148,7 +159,7 @@ HRESULT(*D3D11DrawAuto) (ID3D11DeviceContext* pContext);
 
 HRESULT __stdcall HookDX11DrawAuto(ID3D11DeviceContext* pContext)
 {
-	DoHookOperations(pContext, [pContext]()
+	DoDrawOperations(pContext, [pContext]()
 		{
 			D3D11DrawAuto(pContext);
 		}
@@ -160,7 +171,7 @@ HRESULT(*D3D11DrawInstancedIndirect) (ID3D11DeviceContext* pContext, ID3D11Buffe
 
 HRESULT __stdcall HookDX11DrawInstancedIndirect(ID3D11DeviceContext* pContext, ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs)
 {
-	DoHookOperations(pContext, [pContext, pBufferForArgs, AlignedByteOffsetForArgs]()
+	DoDrawOperations(pContext, [pContext, pBufferForArgs, AlignedByteOffsetForArgs]()
 		{
 			D3D11DrawInstancedIndirect(pContext, pBufferForArgs, AlignedByteOffsetForArgs);
 		}
@@ -172,7 +183,7 @@ HRESULT(*D3D11DrawIndexedInstancedIndirect) (ID3D11DeviceContext* pContext, ID3D
 
 HRESULT __stdcall HookDX11DrawIndexedInstancedIndirect(ID3D11DeviceContext* pContext, ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs)
 {
-	DoHookOperations(pContext, [pContext, pBufferForArgs, AlignedByteOffsetForArgs]()
+	DoDrawOperations(pContext, [pContext, pBufferForArgs, AlignedByteOffsetForArgs]()
 		{
 			D3D11DrawIndexedInstancedIndirect(pContext, pBufferForArgs, AlignedByteOffsetForArgs);
 		}
@@ -189,8 +200,6 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 		Sleep(100);
 	} while (!hDXGIDLL);
 	Sleep(100);
-
-	IDXGISwapChain* pSwapChain;
 
 	WNDCLASSEXA wc = { sizeof(WNDCLASSEX), CS_CLASSDC, DefWindowProc, 0L, 0L, GetModuleHandleA(NULL), NULL, NULL, NULL, NULL, "DX", NULL };
 	RegisterClassExA(&wc);
@@ -235,16 +244,20 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 		sizeof(requestedLevels) / sizeof(D3D_FEATURE_LEVEL),
 		D3D11_SDK_VERSION,
 		&scd,
-		&pSwapChain,
+		&pDXManager->pSwapChain,
 		&pDXManager->pDevice,
 		&obtainedLevel,
 		&pDXManager->pContext
 	);
 	Log::Info("[GhostrunnerVRMod] Created DX11 hardware");
 
+	pDXManager->pSwapChainVTable = (DWORD_PTR*)pDXManager->pSwapChain;
+	pDXManager->pSwapChainVTable = (DWORD_PTR*)pDXManager->pSwapChainVTable[0];
 	pDXManager->pContextVTable = (DWORD_PTR*)pDXManager->pContext;
 	pDXManager->pContextVTable = (DWORD_PTR*)pDXManager->pContextVTable[0];
 
+	pDXManager->pHookD3D11Present = (D3D11PresentHook)pDXManager->pSwapChainVTable[8];
+	MinHook::Add((DWORD64)pDXManager->pHookD3D11Present, &HookDX11Present, &D3D11Present, "DX11-Present");
 	pDXManager->pHookD3D11Draw = (D3D11DrawHook)pDXManager->pContextVTable[13];
 	MinHook::Add((DWORD64)pDXManager->pHookD3D11Draw, &HookDX11Draw, &D3D11Draw, "DX11-Draw");
 	pDXManager->pHookD3D11DrawIndexed = (D3D11DrawIndexedHook)pDXManager->pContextVTable[12];
@@ -260,6 +273,8 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 	pDXManager->pHookD3D11DrawIndexedInstancedIndirect = (D3D11DrawIndexedInstancedIndirectHook)pDXManager->pContextVTable[39];
 	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexedInstancedIndirect, &HookDX11DrawIndexedInstancedIndirect, &D3D11DrawIndexedInstancedIndirect, "DX11-DrawIndexedInstancedIndirect");
 
+	DWORD dPresentOld;
+	VirtualProtect(pDXManager->pHookD3D11Present, 2, PAGE_EXECUTE_READWRITE, &dPresentOld);
 	DWORD dDrawOld;
 	VirtualProtect(pDXManager->pHookD3D11Draw, 2, PAGE_EXECUTE_READWRITE, &dDrawOld);
 	DWORD dDrawIndexedOld;
@@ -285,7 +300,7 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 
 	pDXManager->pDevice->Release();
 	pDXManager->pContext->Release();
-	pSwapChain->Release();
+	pDXManager->pSwapChain->Release();
 	return NULL;
 }
 

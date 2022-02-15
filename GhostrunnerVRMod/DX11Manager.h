@@ -6,6 +6,7 @@
 #include "ExampleMod.h"
 #pragma comment(lib, "d3d11.lib")
 
+typedef void(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 typedef void(__stdcall* D3D11DrawHook) (ID3D11DeviceContext* pContext, UINT VertexCount, UINT StartVertexLocation);
 typedef void(__stdcall* D3D11DrawIndexedHook) (ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 typedef void(__stdcall* D3D11DrawInstancedHook) (ID3D11DeviceContext* pContext, UINT VertexCountPerInstance, UINT InstanceCount, UINT StartVertexLocation, UINT StartInstanceLocation);
@@ -24,9 +25,12 @@ public:
 	bool bIsDXHooked;
 
 	ID3D11Device* pDevice = NULL;
+	IDXGISwapChain* pSwapChain = NULL;
+	DWORD_PTR* pSwapChainVTable = NULL;
 	ID3D11DeviceContext* pContext = NULL;
 	DWORD_PTR* pContextVTable = NULL;
 
+	D3D11PresentHook pHookD3D11Present = NULL;
 	D3D11DrawHook pHookD3D11Draw = NULL;
 	D3D11DrawIndexedHook pHookD3D11DrawIndexed = NULL;
 	D3D11DrawInstancedHook pHookD3D11DrawInstanced = NULL;
