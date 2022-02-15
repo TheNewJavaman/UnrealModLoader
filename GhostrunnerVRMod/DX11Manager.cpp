@@ -95,6 +95,7 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 		&obtainedLevel,
 		&pDXManager->pContext
 	);
+	Log::Info("[GhostrunnerVRMod] Created DX11 hardware");
 
 	pDXManager->pContextVTable = (DWORD_PTR*)pDXManager->pContext;
 	pDXManager->pContextVTable = (DWORD_PTR*)pDXManager->pContextVTable[0];
@@ -112,6 +113,9 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 	VirtualProtect(pDXManager->pHookD3D11DrawIndexed, 2, PAGE_EXECUTE_READWRITE, &dDrawIndexedOld);
 	DWORD dDrawIndexedInstancedOld;
 	VirtualProtect(pDXManager->pHookD3D11DrawIndexedInstanced, 2, PAGE_EXECUTE_READWRITE, &dDrawIndexedInstancedOld);
+	Log::Info("[GhostrunnerVRMod] Added DX11 draw hooks");
+
+	pDXManager->bIsDXHooked = true;
 
 	while (true)
 	{
@@ -129,6 +133,5 @@ void DX11Manager::HookDX11()
 	if (!GetDXManager()->bIsDXHooked)
 	{
 		CreateThread(NULL, 0, InitDX11Hook, NULL, 0, NULL);
-		GetDXManager()->bIsDXHooked = true;
 	}
 }

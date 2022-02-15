@@ -50,9 +50,15 @@ public:
 	ID3D11DeviceContext* pContext = NULL;
 	ID3D11RenderTargetView* pRenderTargetView = NULL;
 
-private:
-	DX11Manager* pDXManager;
+	ID3D11Texture2D* pLeftTexture;
+	ID3D11RenderTargetView* pLeftRTV;
+	ID3D11Texture2D* pRightTexture;
+	ID3D11RenderTargetView* pRightRTV;
 
+	DX11Manager* pDXManager;
+	bool bIsVrInitialized;
+
+private:
 	// If you have a BP Mod Actor, This is a straight refrence to it
 	UE4::AActor* ModActor;
 };
