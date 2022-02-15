@@ -2,11 +2,14 @@
 
 #include "Utilities/MinHook.h"
 #include <d3d11.h>
+#include "ExampleMod.h"
 #pragma comment(lib, "d3d11.lib")
 
 typedef void(__stdcall* D3D11DrawHook) (ID3D11DeviceContext* pContext, UINT VertexCount, UINT StartVertexLocation);
 typedef void(__stdcall* D3D11DrawIndexedHook) (ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 typedef void(__stdcall* D3D11DrawIndexedInstancedHook) (ID3D11DeviceContext* pContext, UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation);
+
+class ExampleMod;
 
 class DX11Manager
 {

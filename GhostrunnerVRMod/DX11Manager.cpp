@@ -11,28 +11,140 @@ DX11Manager* DX11Manager::GetDXManager()
 	return pDXManager;
 }
 
+bool InitVR()
+{
+	ExampleMod* mod = ExampleMod::GetMod();
+	DX11Manager* dxManager = mod->pDXManager;
+	if (!dxManager->bIsDXHooked)
+	{
+		return false;
+	}
+
+	vr::HmdError error;
+	vr::IVRSystem* pSystem = vr::VR_Init(&error, vr::VRApplication_Scene);
+	uint32_t pnWidth;
+	uint32_t pnHeight;
+	pSystem->GetRecommendedRenderTargetSize(&pnWidth, &pnHeight);
+	Log::Info("[GhostrunnerVRMod] Initialized VR system and compositor");
+
+	D3D11_TEXTURE2D_DESC textureDesc;
+	textureDesc.Width = pnWidth;
+	textureDesc.Height = pnHeight;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.SampleDesc.Quality = 0;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+
+	dxManager->pDevice->CreateTexture2D(&textureDesc, NULL, &mod->pLeftTexture);
+	dxManager->pDevice->CreateRenderTargetView(mod->pLeftTexture, &rtvDesc, &mod->pLeftRTV);
+	dxManager->pDevice->CreateTexture2D(&textureDesc, NULL, &mod->pRightTexture);
+	dxManager->pDevice->CreateRenderTargetView(mod->pRightTexture, &rtvDesc, &mod->pRightRTV);
+	Log::Info("[GhostrunnerVRMod] Initialized VR render view targets");
+
+	mod->bIsVrInitialized = true;
+	return true;
+}
+
+void SubmitToVR()
+{
+	ExampleMod* mod = ExampleMod::GetMod();
+	vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
+	vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
+
+	vr::VRTextureBounds_t bounds;
+	bounds.uMin = 0.0f;
+	bounds.uMax = 1.0f;
+	bounds.vMin = 0.0f;
+	bounds.vMax = 1.0f;
+
+	vr::Texture_t leftTexture = { (void*)mod->pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
+	vr::Texture_t rightTexture = { (void*)mod->pRightTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+	vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
+}
+
 HRESULT(*D3D11Draw) (ID3D11DeviceContext* pContext, UINT VertexCount, UINT StartVertexLocation);
 
 HRESULT __stdcall HookDX11Draw(ID3D11DeviceContext* pContext, UINT VertexCount, UINT StartVertexLocation)
 {
-	Global::GetGlobals()->eventSystem.dispatchEvent("DX11Draw", pContext, VertexCount, StartVertexLocation);
-	return D3D11Draw(pContext, VertexCount, StartVertexLocation);
+	ExampleMod* mod = ExampleMod::GetMod();
+	if (!mod->bIsVrInitialized && !InitVR())
+	{
+		return S_OK;
+	}
+
+	ID3D11RenderTargetView* oldRTVs[1];
+	ID3D11DepthStencilView* oldDSV;
+	// TODO: Find out how many RTVs Ghostrunner uses
+	pContext->OMGetRenderTargets(1, oldRTVs, &oldDSV);
+	ID3D11RenderTargetView* vrRTVs[]{ mod->pLeftRTV, mod->pRightRTV };
+	pContext->OMSetRenderTargets(1, vrRTVs, oldDSV);
+	D3D11Draw(pContext, VertexCount, StartVertexLocation);
+	//pContext->OMSetRenderTargets(1, oldRTVs, oldDSV);
+	if (oldRTVs[0]) oldRTVs[0]->Release();
+	if (oldDSV) oldDSV->Release();
+
+	SubmitToVR();
+	return S_OK;
 }
 
 HRESULT(*D3D11DrawIndexed) (ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 
 HRESULT __stdcall HookDX11DrawIndexed(ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
 {
-	Global::GetGlobals()->eventSystem.dispatchEvent("DX11DrawIndexed", pContext, IndexCount, StartIndexLocation, BaseVertexLocation);
-	return D3D11DrawIndexed(pContext, IndexCount, StartIndexLocation, BaseVertexLocation);
+	ExampleMod* mod = ExampleMod::GetMod();
+	if (!mod->bIsVrInitialized && !InitVR())
+	{
+		return S_OK;
+	}
+
+	ID3D11RenderTargetView* oldRTVs[1];
+	ID3D11DepthStencilView* oldDSV;
+	// TODO: Find out how many RTVs Ghostrunner uses
+	pContext->OMGetRenderTargets(1, oldRTVs, &oldDSV);
+	ID3D11RenderTargetView* vrRTVs[]{ mod->pLeftRTV, mod->pRightRTV };
+	pContext->OMSetRenderTargets(1, vrRTVs, oldDSV);
+	D3D11DrawIndexed(pContext, IndexCount, StartIndexLocation, BaseVertexLocation);
+	//pContext->OMSetRenderTargets(1, oldRTVs, oldDSV);
+	if (oldRTVs[0]) oldRTVs[0]->Release();
+	if (oldDSV) oldDSV->Release();
+
+	SubmitToVR();
+	return S_OK;
 }
 
 HRESULT(*D3D11DrawIndexedInstanced) (ID3D11DeviceContext* pContext, UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation);
 
 HRESULT __stdcall HookDX11DrawIndexedInstanced(ID3D11DeviceContext* pContext, UINT IndexCountPerInstance, UINT InstanceCount, UINT StartIndexLocation, INT BaseVertexLocation, UINT StartInstanceLocation)
 {
-	Global::GetGlobals()->eventSystem.dispatchEvent("DX11DrawIndexedInstanced", pContext, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
-	return D3D11DrawIndexedInstanced(pContext, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
+	ExampleMod* mod = ExampleMod::GetMod();
+	if (!mod->bIsVrInitialized && !InitVR())
+	{
+		return S_OK;
+	}
+
+	ID3D11RenderTargetView* oldRTVs[1];
+	ID3D11DepthStencilView* oldDSV;
+	// TODO: Find out how many RTVs Ghostrunner uses
+	pContext->OMGetRenderTargets(1, oldRTVs, &oldDSV);
+	ID3D11RenderTargetView* vrRTVs[]{ mod->pLeftRTV, mod->pRightRTV };
+	pContext->OMSetRenderTargets(1, vrRTVs, oldDSV);
+	D3D11DrawIndexedInstanced(pContext, IndexCountPerInstance, InstanceCount, StartIndexLocation, BaseVertexLocation, StartInstanceLocation);
+	//pContext->OMSetRenderTargets(1, oldRTVs, oldDSV);
+	if (oldRTVs[0]) oldRTVs[0]->Release();
+	if (oldDSV) oldDSV->Release();
+
+	SubmitToVR();
+	return S_OK;
 }
 
 DWORD __stdcall InitDX11Hook(LPVOID)

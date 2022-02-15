@@ -5,6 +5,8 @@
 #include "DX11Manager.h"
 #include "Utilities/MinHook.h"
 
+class DX11Manager;
+
 class ExampleMod : public Mod
 {
 public:
@@ -42,23 +44,19 @@ public:
 	//Call ImGui Here (CALLED EVERY FRAME ON DX HOOK)
 	virtual void DrawImGui() override;
 
-	typedef HRESULT(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
-	D3D11PresentHook phookD3D11Present = NULL;
-
-	DWORD_PTR* pSwapChainVtable = NULL;
-	ID3D11Device* pDevice = NULL;
-	ID3D11DeviceContext* pContext = NULL;
-	ID3D11RenderTargetView* pRenderTargetView = NULL;
-
 	ID3D11Texture2D* pLeftTexture;
 	ID3D11RenderTargetView* pLeftRTV;
 	ID3D11Texture2D* pRightTexture;
 	ID3D11RenderTargetView* pRightRTV;
-
+	
 	DX11Manager* pDXManager;
 	bool bIsVrInitialized;
 
+	static ExampleMod* GetMod();
+
 private:
+	static ExampleMod* Mod;
+
 	// If you have a BP Mod Actor, This is a straight refrence to it
 	UE4::AActor* ModActor;
 };
