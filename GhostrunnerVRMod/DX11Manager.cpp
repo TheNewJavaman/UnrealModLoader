@@ -210,12 +210,14 @@ HRESULT(*D3D11RSSetViewports) (ID3D11DeviceContext* pContext, UINT NumViewports,
 
 HRESULT __stdcall HookDX11RSSetViewports(ID3D11DeviceContext* pContext, UINT NumViewports, D3D11_VIEWPORT* pViewports)
 {
+	/*
 	DX11Manager* dxManager = DX11Manager::GetDXManager();
 	for (UINT i = 0; i < NumViewports; i++)
 	{
 		pViewports[i].Width = dxManager->pnWidth;
 		pViewports[i].Height = dxManager->pnHeight;
 	}
+	*/
 	D3D11RSSetViewports(pContext, NumViewports, pViewports);
 	return S_OK;
 }
@@ -224,6 +226,7 @@ HRESULT(*D3D11RSSetScissorRects) (ID3D11DeviceContext* pContext, UINT NumRects, 
 
 HRESULT __stdcall HookDX11RSSSetScissorRects(ID3D11DeviceContext* pContext, UINT NumRects, D3D11_RECT* pRects)
 {
+	/*
 	DX11Manager* dxManager = DX11Manager::GetDXManager();
 	for (UINT i = 0; i < NumRects; i++)
 	{
@@ -232,6 +235,7 @@ HRESULT __stdcall HookDX11RSSSetScissorRects(ID3D11DeviceContext* pContext, UINT
 		pRects[i].right = dxManager->pnWidth;
 		pRects[i].bottom = dxManager->pnHeight;
 	}
+	*/
 	D3D11RSSetScissorRects(pContext, NumRects, pRects);
 	return S_OK;
 }
