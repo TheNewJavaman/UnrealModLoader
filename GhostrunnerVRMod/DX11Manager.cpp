@@ -67,7 +67,9 @@ void SubmitToVR()
 	vr::Texture_t leftTexture = { (void*)mod->pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
 	vr::Texture_t rightTexture = { (void*)mod->pRightTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
+	// Temporarily submit the same image to both eyes; need to implement IPD
+	//vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
+	vr::VRCompositor()->Submit(vr::Eye_Right, &leftTexture, &bounds, vr::Submit_Default);
 }
 
 void DoDrawOperations(ID3D11DeviceContext* pContext, std::function<void(void)> drawFunc)
