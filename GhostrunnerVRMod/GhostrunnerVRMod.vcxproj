@@ -24,6 +24,7 @@
     <ProjectGuid>{b455d9e0-984b-49cf-a508-90edd2d26364}</ProjectGuid>
     <RootNamespace>GhostrunnerVRMod</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>GhostrunnerVR_Core</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

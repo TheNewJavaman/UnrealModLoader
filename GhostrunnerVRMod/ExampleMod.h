@@ -13,7 +13,7 @@ public:
 	//Basic Mod Info
 	ExampleMod()
 	{
-		ModName = "GhostrunnerVRMod"; // Mod Name -- If Using BP ModActor, Should Be The Same Name As Your Pak
+		ModName = "GhostrunnerVR_Core"; // Mod Name -- If Using BP ModActor, Should Be The Same Name As Your Pak
 		ModVersion = "0.1.0"; // Mod Version
 		ModDescription = "Adds support for virtual reality gameplay"; // Mod Description
 		ModAuthors = "Gabriel Pizarro (TheNewJavaman)"; // Mod Author
