@@ -43,11 +43,6 @@ public:
 
 	//Call ImGui Here (CALLED EVERY FRAME ON DX HOOK)
 	virtual void DrawImGui() override;
-
-	ID3D11Texture2D* pLeftTexture;
-	ID3D11RenderTargetView* pLeftRTV;
-	ID3D11Texture2D* pRightTexture;
-	ID3D11RenderTargetView* pRightRTV;
 	
 	DX11Manager* pDXManager;
 	bool bIsVrInitialized;
