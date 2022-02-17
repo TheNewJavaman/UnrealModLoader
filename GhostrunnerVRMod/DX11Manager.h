@@ -15,8 +15,6 @@ typedef void(__stdcall* D3D11DrawIndexedInstancedHook) (ID3D11DeviceContext* pCo
 typedef void(__stdcall* D3D11DrawAutoHook) (ID3D11DeviceContext* pContext);
 typedef void(__stdcall* D3D11DrawInstancedIndirectHook) (ID3D11DeviceContext* pContext, ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs);
 typedef void(__stdcall* D3D11DrawIndexedInstancedIndirectHook) (ID3D11DeviceContext* pContext, ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs);
-typedef void(__stdcall* D3D11RSSetViewportsHook) (ID3D11DeviceContext* pContext, UINT NumViewports, D3D11_VIEWPORT* pViewports);
-typedef void(__stdcall* D3D11RSSetScissorRectsHook) (ID3D11DeviceContext* pContext, UINT NumRects, D3D11_RECT* pRects);
 
 class ExampleMod;
 
@@ -44,8 +42,6 @@ public:
 	D3D11DrawAutoHook pHookD3D11DrawAuto = NULL;
 	D3D11DrawInstancedIndirectHook pHookD3D11DrawInstancedIndirect = NULL;
 	D3D11DrawIndexedInstancedIndirectHook pHookD3D11DrawIndexedInstancedIndirect = NULL;
-	D3D11RSSetViewportsHook pHookD3D11RSSetViewports = NULL;
-	D3D11RSSetScissorRectsHook pHookD3D11RSSetScissorRects = NULL;
 
 	bool bAreRTVsSet;
 	bool bIsResolutionSet;

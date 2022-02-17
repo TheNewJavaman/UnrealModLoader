@@ -236,40 +236,6 @@ HRESULT __stdcall HookDX11VSSetConstantBuffers(ID3D11DeviceContext* pContext, UI
 	return S_OK;
 }
 
-HRESULT(*D3D11RSSetViewports) (ID3D11DeviceContext* pContext, UINT NumViewports, D3D11_VIEWPORT* pViewports);
-
-HRESULT __stdcall HookDX11RSSetViewports(ID3D11DeviceContext* pContext, UINT NumViewports, D3D11_VIEWPORT* pViewports)
-{
-	/*
-	DX11Manager* dxManager = DX11Manager::GetDXManager();
-	for (UINT i = 0; i < NumViewports; i++)
-	{
-		pViewports[i].Width = dxManager->pnWidth;
-		pViewports[i].Height = dxManager->pnHeight;
-	}
-	*/
-	D3D11RSSetViewports(pContext, NumViewports, pViewports);
-	return S_OK;
-}
-
-HRESULT(*D3D11RSSetScissorRects) (ID3D11DeviceContext* pContext, UINT NumRects, D3D11_RECT* pRects);
-
-HRESULT __stdcall HookDX11RSSSetScissorRects(ID3D11DeviceContext* pContext, UINT NumRects, D3D11_RECT* pRects)
-{
-	/*
-	DX11Manager* dxManager = DX11Manager::GetDXManager();
-	for (UINT i = 0; i < NumRects; i++)
-	{
-		pRects[i].left = 0;
-		pRects[i].top = 0;
-		pRects[i].right = dxManager->pnWidth;
-		pRects[i].bottom = dxManager->pnHeight;
-	}
-	*/
-	D3D11RSSetScissorRects(pContext, NumRects, pRects);
-	return S_OK;
-}
-
 DWORD __stdcall InitDX11Hook(LPVOID)
 {
 	HMODULE hDXGIDLL = 0;
@@ -351,10 +317,6 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawInstancedIndirect, &HookDX11DrawInstancedIndirect, &D3D11DrawInstancedIndirect, "VR-DX11-DrawInstancedIndirect");
 	pDXManager->pHookD3D11DrawIndexedInstancedIndirect = (D3D11DrawIndexedInstancedIndirectHook)pDXManager->pContextVTable[39];
 	MinHook::Add((DWORD64)pDXManager->pHookD3D11DrawIndexedInstancedIndirect, &HookDX11DrawIndexedInstancedIndirect, &D3D11DrawIndexedInstancedIndirect, "VR-DX11-DrawIndexedInstancedIndirect");
-	pDXManager->pHookD3D11RSSetViewports = (D3D11RSSetViewportsHook)pDXManager->pContextVTable[44];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11RSSetViewports, &HookDX11RSSetViewports, &D3D11RSSetViewports, "VR-DX11-RSSetViewports");
-	pDXManager->pHookD3D11RSSetScissorRects = (D3D11RSSetScissorRectsHook)pDXManager->pContextVTable[45];
-	MinHook::Add((DWORD64)pDXManager->pHookD3D11RSSetScissorRects, &HookDX11RSSSetScissorRects, &D3D11RSSetScissorRects, "VR-DX11-RSSetScissorRects");
 
 	DWORD dPresentOld;
 	VirtualProtect(pDXManager->pHookD3D11Present, 2, PAGE_EXECUTE_READWRITE, &dPresentOld);
@@ -372,10 +334,6 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 	VirtualProtect(pDXManager->pHookD3D11DrawInstancedIndirect, 2, PAGE_EXECUTE_READWRITE, &dDrawInstancedIndirectOld);
 	DWORD dDrawIndexedInstancedIndirectOld;
 	VirtualProtect(pDXManager->pHookD3D11DrawIndexedInstancedIndirect, 2, PAGE_EXECUTE_READWRITE, &dDrawIndexedInstancedIndirectOld);
-	DWORD dRSSetViewportsOld;
-	VirtualProtect(pDXManager->pHookD3D11RSSetViewports, 2, PAGE_EXECUTE_READWRITE, &dRSSetViewportsOld);
-	DWORD dRSSetScissorRectsOld;
-	VirtualProtect(pDXManager->pHookD3D11RSSetScissorRects, 2, PAGE_EXECUTE_READWRITE, &dRSSetScissorRectsOld);
 
 	Log::Info("[GhostrunnerVRMod] Added DX11 hooks");
 	pDXManager->bIsDXHooked = true;
