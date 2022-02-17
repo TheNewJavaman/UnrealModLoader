@@ -55,7 +55,7 @@ bool InitVR()
 void SubmitToVR()
 {
 	ExampleMod* mod = ExampleMod::GetMod();
-	DX11Manager* dxManager = mod->pDXManager;
+	//DX11Manager* dxManager = mod->pDXManager;
 	vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
 	vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
@@ -65,27 +65,24 @@ void SubmitToVR()
 	bounds.vMin = 0.0f;
 	bounds.vMax = 1.0f;
 
-	/*
-	if (dxManager->eyeLastRendered == vr::Eye_Right)
-	{
+	//if (dxManager->eyeLastRendered == vr::Eye_Right)
+	//{
 		vr::Texture_t leftTexture = { (void*)mod->pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
-		dxManager->eyeLastRendered = vr::Eye_Left;
-		UE4Helpers::TriggerEvent(L"MoveCameraToEye", std::vector<std::wstring>{ L"1" });
-	}
-	else
-	{
+	//	dxManager->eyeLastRendered = vr::Eye_Left;
+		UE4Helpers::TriggerEvent(L"MoveCameraToEye", { L"1" });
+	//}
+	//else
+	//{
 		vr::Texture_t rightTexture = { (void*)mod->pRightTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
 		vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
-		dxManager->eyeLastRendered = vr::Eye_Right;
-		UE4Helpers::TriggerEvent(L"MoveCameraToEye", std::vector<std::wstring>{ L"0" });
-	}
-	*/
+	//	dxManager->eyeLastRendered = vr::Eye_Right;
+		UE4Helpers::TriggerEvent(L"MoveCameraToEye", { L"0" });
+	//}
 
-	// Temporary debugging -- left & eyes are the same
-	vr::Texture_t leftTexture = { (void*)mod->pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-	vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
-	vr::VRCompositor()->Submit(vr::Eye_Right, &leftTexture, &bounds, vr::Submit_Default);
+		const float clearColor[] = { 0.0, 0.0, 0.0, 1.0 };
+		mod->pDXManager->pContext->ClearRenderTargetView(mod->pLeftRTV, clearColor);
+		mod->pDXManager->pContext->ClearRenderTargetView(mod->pRightRTV, clearColor);
 }
 
 void DoDrawOperations(ID3D11DeviceContext* pContext, std::function<void(void)> drawFunc)
@@ -112,7 +109,7 @@ void DoDrawOperations(ID3D11DeviceContext* pContext, std::function<void(void)> d
 	{
 		if (!dxManager->bIsResolutionSet) 
 		{
-			UE4Helpers::TriggerEvent(L"SetResolutionForVR", std::vector<std::wstring>{ std::to_wstring(dxManager->pnWidth), std::to_wstring(dxManager->pnHeight) });
+			UE4Helpers::TriggerEvent(L"SetResolutionForVR", { std::to_wstring(dxManager->pnWidth), std::to_wstring(dxManager->pnHeight) });
 			dxManager->bIsResolutionSet = true;
 		}
 		pContext->OMSetRenderTargets(1, vrRTVs, oldDSV);
@@ -128,9 +125,12 @@ HRESULT(*D3D11Present) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flag
 HRESULT __stdcall HookDX11Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
 {
 	ExampleMod* mod = ExampleMod::GetMod();
-	if (!mod->bIsVrInitialized && !InitVR())
+	if (!mod->bIsVrInitialized)
 	{
-		return S_OK;
+		if (!InitVR())
+		{
+			return S_OK;
+		}
 	}
 	SubmitToVR();
 	return S_OK;
@@ -251,7 +251,7 @@ DWORD __stdcall InitDX11Hook(LPVOID)
 
 	HWND hWnd = CreateWindowA("DX", NULL, WS_OVERLAPPEDWINDOW, 100, 100, 300, 300, NULL, NULL, wc.hInstance, NULL);
 
-	D3D_FEATURE_LEVEL requestedLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_1 };
+	D3D_FEATURE_LEVEL requestedLevels[] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_11_1 };
 	D3D_FEATURE_LEVEL obtainedLevel;
 
 	DXGI_SWAP_CHAIN_DESC scd;
