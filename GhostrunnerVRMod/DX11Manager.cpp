@@ -55,6 +55,7 @@ bool InitVR()
 void SubmitToVR()
 {
 	ExampleMod* mod = ExampleMod::GetMod();
+	DX11Manager* dxManager = mod->pDXManager;
 	vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
 	vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, NULL, 0);
 
@@ -64,17 +65,33 @@ void SubmitToVR()
 	bounds.vMin = 0.0f;
 	bounds.vMax = 1.0f;
 
+	/*
+	if (dxManager->eyeLastRendered == vr::Eye_Right)
+	{
+		vr::Texture_t leftTexture = { (void*)mod->pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+		vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
+		dxManager->eyeLastRendered = vr::Eye_Left;
+		UE4Helpers::TriggerEvent(L"MoveCameraToEye", std::vector<std::wstring>{ L"1" });
+	}
+	else
+	{
+		vr::Texture_t rightTexture = { (void*)mod->pRightTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
+		vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
+		dxManager->eyeLastRendered = vr::Eye_Right;
+		UE4Helpers::TriggerEvent(L"MoveCameraToEye", std::vector<std::wstring>{ L"0" });
+	}
+	*/
+
+	// Temporary debugging -- left & eyes are the same
 	vr::Texture_t leftTexture = { (void*)mod->pLeftTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
 	vr::VRCompositor()->Submit(vr::Eye_Left, &leftTexture, &bounds, vr::Submit_Default);
-	vr::Texture_t rightTexture = { (void*)mod->pRightTexture, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
-	// Temporarily submit the same image to both eyes; need to implement IPD
-	//vr::VRCompositor()->Submit(vr::Eye_Right, &rightTexture, &bounds, vr::Submit_Default);
 	vr::VRCompositor()->Submit(vr::Eye_Right, &leftTexture, &bounds, vr::Submit_Default);
 }
 
 void DoDrawOperations(ID3D11DeviceContext* pContext, std::function<void(void)> drawFunc)
 {
 	ExampleMod* mod = ExampleMod::GetMod();
+	DX11Manager* dxManager = mod->pDXManager;
 	if (!mod->bIsVrInitialized && !InitVR())
 	{
 		return;
@@ -83,10 +100,23 @@ void DoDrawOperations(ID3D11DeviceContext* pContext, std::function<void(void)> d
 	ID3D11DepthStencilView* oldDSV;
 	// TODO: Find out how many RTVs Ghostrunner uses
 	pContext->OMGetRenderTargets(1, oldRTVs, &oldDSV);
-	ID3D11RenderTargetView* vrRTVs[]{ mod->pLeftRTV };
-	if (oldRTVs[0] != vrRTVs[0])
+	ID3D11RenderTargetView* vrRTVs[1];
+	if (dxManager->eyeLastRendered == vr::Eye_Left) {
+		vrRTVs[0] = mod->pRightRTV;
+	}
+	else
 	{
+		vrRTVs[0] = mod->pLeftRTV;
+	}
+ 	if (oldRTVs[0] != vrRTVs[0])
+	{
+		if (!dxManager->bIsResolutionSet) 
+		{
+			UE4Helpers::TriggerEvent(L"SetResolutionForVR", std::vector<std::wstring>{ std::to_wstring(dxManager->pnWidth), std::to_wstring(dxManager->pnHeight) });
+			dxManager->bIsResolutionSet = true;
+		}
 		pContext->OMSetRenderTargets(1, vrRTVs, oldDSV);
+
 	}
 	drawFunc();
 	if (oldRTVs[0]) oldRTVs[0]->Release();

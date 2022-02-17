@@ -156,6 +156,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DX11Manager.cpp" />
     <ClCompile Include="ExampleMod.cpp" />
+    <ClCompile Include="UE4Helpers.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp" />

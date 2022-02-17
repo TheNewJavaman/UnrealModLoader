@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <functional>
 #include "ExampleMod.h"
+#include "UE4Helpers.hpp"
 #pragma comment(lib, "d3d11.lib")
 
 typedef void(__stdcall* D3D11PresentHook) (IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
@@ -16,8 +17,6 @@ typedef void(__stdcall* D3D11DrawInstancedIndirectHook) (ID3D11DeviceContext* pC
 typedef void(__stdcall* D3D11DrawIndexedInstancedIndirectHook) (ID3D11DeviceContext* pContext, ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs);
 typedef void(__stdcall* D3D11RSSetViewportsHook) (ID3D11DeviceContext* pContext, UINT NumViewports, D3D11_VIEWPORT* pViewports);
 typedef void(__stdcall* D3D11RSSetScissorRectsHook) (ID3D11DeviceContext* pContext, UINT NumRects, D3D11_RECT* pRects);
-
-// Overwrite VS CB's first entry (assume to be WVP)
 
 class ExampleMod;
 
@@ -49,6 +48,9 @@ public:
 	D3D11RSSetScissorRectsHook pHookD3D11RSSetScissorRects = NULL;
 
 	bool bAreRTVsSet;
+	bool bIsResolutionSet;
+
+	vr::EVREye eyeLastRendered = vr::Eye_Right;
 
 	static DX11Manager* GetDXManager();
 

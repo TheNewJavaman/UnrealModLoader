@@ -28,6 +28,9 @@
     <ClCompile Include="DX11Manager.cpp">
       <Filter>Mod</Filter>
     </ClCompile>
+    <ClCompile Include="UE4Helpers.hpp">
+      <Filter>Mod</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp">
