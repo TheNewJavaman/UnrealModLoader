@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExampleMod", "..\ExampleMod
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoaderAutoInjector", "..\LoaderAutoInjector\LoaderAutoInjector.vcxproj", "{ACD937DA-925A-4640-9AD0-39A381D323EA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GhostrunnerVRMod", "..\GhostrunnerVRMod\GhostrunnerVRMod.vcxproj", "{B455D9E0-984B-49CF-A508-90EDD2D26364}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GhostrunnerVR", "..\GhostrunnerVRMod\GhostrunnerVRMod.vcxproj", "{B455D9E0-984B-49CF-A508-90EDD2D26364}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

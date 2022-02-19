@@ -22,13 +22,16 @@
     <ClCompile Include="..\UnrealEngineModLoader\UE4\CoreUObject_functions.cpp">
       <Filter>UE4</Filter>
     </ClCompile>
-    <ClCompile Include="ExampleMod.cpp">
+    <ClCompile Include="GhostrunnerVR.cpp">
       <Filter>Mod</Filter>
     </ClCompile>
-    <ClCompile Include="DX11Manager.cpp">
+    <ClCompile Include="DXManager.cpp">
       <Filter>Mod</Filter>
     </ClCompile>
-    <ClCompile Include="UE4Helpers.hpp">
+    <ClCompile Include="VRManager.cpp">
+      <Filter>Mod</Filter>
+    </ClCompile>
+    <ClCompile Include="UEHelper.cpp">
       <Filter>Mod</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,14 +39,28 @@
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp">
       <Filter>UE4</Filter>
     </ClInclude>
-    <ClInclude Include="ExampleMod.h">
+    <ClInclude Include="GhostrunnerVR.h">
       <Filter>Mod</Filter>
     </ClInclude>
-    <ClInclude Include="DX11Manager.h">
+    <ClInclude Include="DXManager.h">
+      <Filter>Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="VRManager.h">
+      <Filter>Mod</Filter>
+    </ClInclude>
+    <ClInclude Include="UEHelper.h">
       <Filter>Mod</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="$(OpenXRLoaderBinaryRoot)\bin\openxr_loader.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Mod</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Mod</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
