@@ -15,10 +15,18 @@ namespace GhostrunnerVR
 		return Ref;
 	}
 
+	void CheckHR(HRESULT hr, std::string location)
+	{
+		if (hr != S_OK)
+		{
+			Log::Warn("[GhostrunnerVR] HRESULT (" + std::to_string(hr) + ") at " + location);
+		}
+	}
+
 	void Convert_R10G10B10A2(IDXGISwapChain* pSwapChain, ID3D11Texture2D* in, ID3D11Texture2D** out)
 	{
 		ID3D11Device* device;
-		pSwapChain->GetDevice(_uuidof(ID3D11Device), (void**)&device);
+		CheckHR(pSwapChain->GetDevice(_uuidof(ID3D11Device), (void**)&device), "device creation");
 		ID3D11DeviceContext* context;
 		device->GetImmediateContext(&context);
 
@@ -26,18 +34,27 @@ namespace GhostrunnerVR
 		in->GetDesc(&textureDesc);
 		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
-		device->CreateTexture2D(&textureDesc, NULL, out);
+		CheckHR(device->CreateTexture2D(&textureDesc, NULL, out), "texture creation");
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 		rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		rtvDesc.Texture2D.MipSlice = 0;
 		ID3D11RenderTargetView* rtv;
-		device->CreateRenderTargetView(*out, &rtvDesc, &rtv);
+		CheckHR(device->CreateRenderTargetView(*out, &rtvDesc, &rtv), "render target view creation");
 
+		in->GetDesc(&textureDesc);
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		ID3D11Texture2D* copy;
+		CheckHR(device->CreateTexture2D(&textureDesc, NULL, &copy), "source copy creation");
+		context->CopyResource(copy, in);
+		
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.MostDetailedMip = 0;
 		ID3D11ShaderResourceView* srv;
-		device->CreateShaderResourceView(in, &srvDesc, &srv);
+		CheckHR(device->CreateShaderResourceView(copy, &srvDesc, &srv), "shader resource view creation");
 
 		context->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
 		context->IASetIndexBuffer(NULL, (DXGI_FORMAT)0, 0);
@@ -45,11 +62,11 @@ namespace GhostrunnerVR
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		ID3D11VertexShader* vs;
-		device->CreateVertexShader(VertexShaderBytecode, ARRAYSIZE(VertexShaderBytecode), NULL, &vs);
+		CheckHR(device->CreateVertexShader(VertexShaderBytecode, ARRAYSIZE(VertexShaderBytecode), NULL, &vs), "vertex shader creation");
 		context->VSSetShader(vs, NULL, 0);
 
 		ID3D11PixelShader* ps;
-		device->CreatePixelShader(PixelShaderBytecode, ARRAYSIZE(PixelShaderBytecode), NULL, &ps);
+		CheckHR(device->CreatePixelShader(PixelShaderBytecode, ARRAYSIZE(PixelShaderBytecode), NULL, &ps), "pixel shader creation");
 		context->PSSetShader(ps, NULL, 0);
 
 		ID3D11RenderTargetView* rtvs[] = { rtv };
@@ -59,6 +76,11 @@ namespace GhostrunnerVR
 
 		context->Draw(3, 0);
 
+		ps->Release();
+		vs->Release();
+		srv->Release();
+		copy->Release();
+		rtv->Release();
 		context->Release();
 		device->Release();
 	}
@@ -79,16 +101,16 @@ namespace GhostrunnerVR
 			ID3D11Texture2D* converted;
 			Convert_R10G10B10A2(pSwapChain, texture2D, &converted);
 			VRManager::Get()->SubmitFrame(0, converted);
+			converted->Release();
 		}
 		else {
 			vr::EVRCompositorError error = VRManager::Get()->SubmitFrame(0, texture2D);
 			if (error != vr::VRCompositorError_None)
 			{
-				Log::Error("[GhostrunnerVR] VR compositor error (" + std::to_string(error) + ")! This probably has to do with an unsupported texture format");
+				Log::Warn("[GhostrunnerVR] VR compositor error (" + std::to_string(error) + ")! This probably has to do with an unsupported texture format");
 			}
+			VRManager::Get()->SubmitFrame(0, texture2D);
 		}
-
-		VRManager::Get()->SubmitFrame(0, texture2D);
 
 		texture2D->Release();
 	}
