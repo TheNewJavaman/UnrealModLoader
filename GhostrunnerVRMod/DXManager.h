@@ -4,7 +4,6 @@
 #include <d3d11.h>
 #include "Utilities/Globals.h"
 #include "Utilities/MinHook.h"
-#include "UEHelper.h"
 #include "VRManager.h"
 #include "PixelShader.h"
 #include "VertexShader.h"
@@ -19,6 +18,14 @@ namespace GhostrunnerVR
 	public:
 		void HookDX();
 
+		struct {
+			bool IsInitialized;
+			ID3D11Device* Device;
+			ID3D11DeviceContext* Context;
+			ID3D11VertexShader* VS;
+			ID3D11PixelShader* PS;
+		} Convert;
+
 		bool IsDXHooked{ false };
 
 		DWORD_PTR* SwapChainVTable;
@@ -29,8 +36,5 @@ namespace GhostrunnerVR
 
 	private:
 		static DXManager* Ref;
-
-		ID3D11VertexShader* VertexShader;
-		ID3D11PixelShader* PixelShader;
 	};
 }

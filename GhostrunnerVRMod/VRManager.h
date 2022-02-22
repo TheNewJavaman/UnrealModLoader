@@ -5,23 +5,19 @@
 
 #include <vector>
 #include <d3d11.h>
+#include <cmath>
 #include "openvr/openvr.h"
 #include "GhostrunnerVR.h"
+#include "UEHelper.h"
 #pragma comment(lib, "d3d11.lib")
 
 namespace GhostrunnerVR
 {
-	struct VRResolution
-	{
-		unsigned int Width;
-		unsigned int Height;
-	};
-
 	class VRManager
 	{
 	public:
-		void InitVR(VRResolution* resolution);
-		vr::EVRCompositorError SubmitFrame(int eye, ID3D11Texture2D* texture2D);
+		void InitVR();
+		vr::EVRCompositorError SubmitFrame(ID3D11Texture2D* texture2D);
 
 		bool IsVRInitialized;
 		vr::EVREye LastEyeRendered = vr::Eye_Right;

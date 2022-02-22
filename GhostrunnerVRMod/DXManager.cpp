@@ -15,74 +15,62 @@ namespace GhostrunnerVR
 		return Ref;
 	}
 
-	void CheckHR(HRESULT hr, std::string location)
+	void Convert_R10G10B10A2UNORM(IDXGISwapChain* pSwapChain, ID3D11Texture2D* input, ID3D11Texture2D** output)
 	{
-		if (hr != S_OK)
+		if (!DXManager::Get()->Convert.IsInitialized)
 		{
-			Log::Warn("[GhostrunnerVR] HRESULT (" + std::to_string(hr) + ") at " + location);
+			pSwapChain->GetDevice(_uuidof(ID3D11Device), (void**)&DXManager::Get()->Convert.Device);
+			DXManager::Get()->Convert.Device->GetImmediateContext(&DXManager::Get()->Convert.Context);
+		
+			DXManager::Get()->Convert.Device->CreateVertexShader(VertexShaderBytecode, ARRAYSIZE(VertexShaderBytecode), NULL, &DXManager::Get()->Convert.VS);
+			DXManager::Get()->Convert.Device->CreatePixelShader(PixelShaderBytecode, ARRAYSIZE(PixelShaderBytecode), NULL, &DXManager::Get()->Convert.PS);
+		
+			DXManager::Get()->Convert.IsInitialized = true;
 		}
-	}
-
-	void Convert_R10G10B10A2(IDXGISwapChain* pSwapChain, ID3D11Texture2D* in, ID3D11Texture2D** out)
-	{
-		ID3D11Device* device;
-		CheckHR(pSwapChain->GetDevice(_uuidof(ID3D11Device), (void**)&device), "device creation");
-		ID3D11DeviceContext* context;
-		device->GetImmediateContext(&context);
 
 		D3D11_TEXTURE2D_DESC textureDesc;
-		in->GetDesc(&textureDesc);
+		input->GetDesc(&textureDesc);
 		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
-		CheckHR(device->CreateTexture2D(&textureDesc, NULL, out), "texture creation");
+		DXManager::Get()->Convert.Device->CreateTexture2D(&textureDesc, NULL, output);
+
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
 		rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D.MipSlice = 0;
 		ID3D11RenderTargetView* rtv;
-		CheckHR(device->CreateRenderTargetView(*out, &rtvDesc, &rtv), "render target view creation");
-
-		in->GetDesc(&textureDesc);
+		DXManager::Get()->Convert.Device->CreateRenderTargetView(*output, &rtvDesc, &rtv);
+		
+		input->GetDesc(&textureDesc);
 		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		ID3D11Texture2D* copy;
-		CheckHR(device->CreateTexture2D(&textureDesc, NULL, &copy), "source copy creation");
-		context->CopyResource(copy, in);
-		
+		DXManager::Get()->Convert.Device->CreateTexture2D(&textureDesc, NULL, &copy);
+		DXManager::Get()->Convert.Context->CopyResource(copy, input);
+
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srvDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels = 1;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		ID3D11ShaderResourceView* srv;
-		CheckHR(device->CreateShaderResourceView(copy, &srvDesc, &srv), "shader resource view creation");
+		DXManager::Get()->Convert.Device->CreateShaderResourceView(copy, &srvDesc, &srv);
 
-		context->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
-		context->IASetIndexBuffer(NULL, (DXGI_FORMAT)0, 0);
-		context->IASetInputLayout(NULL);
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		DXManager::Get()->Convert.Context->IASetVertexBuffers(0, 0, NULL, NULL, NULL);
+		DXManager::Get()->Convert.Context->IASetIndexBuffer(NULL, (DXGI_FORMAT)0, 0);
+		DXManager::Get()->Convert.Context->IASetInputLayout(NULL);
+		DXManager::Get()->Convert.Context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		ID3D11VertexShader* vs;
-		CheckHR(device->CreateVertexShader(VertexShaderBytecode, ARRAYSIZE(VertexShaderBytecode), NULL, &vs), "vertex shader creation");
-		context->VSSetShader(vs, NULL, 0);
+		DXManager::Get()->Convert.Context->VSSetShader(DXManager::Get()->Convert.VS, NULL, 0);
+		DXManager::Get()->Convert.Context->PSSetShader(DXManager::Get()->Convert.PS, NULL, 0);
 
-		ID3D11PixelShader* ps;
-		CheckHR(device->CreatePixelShader(PixelShaderBytecode, ARRAYSIZE(PixelShaderBytecode), NULL, &ps), "pixel shader creation");
-		context->PSSetShader(ps, NULL, 0);
+		DXManager::Get()->Convert.Context->OMSetRenderTargets(1, &rtv, nullptr);
+		DXManager::Get()->Convert.Context->PSSetShaderResources(0, 1, &srv);
 
-		ID3D11RenderTargetView* rtvs[] = { rtv };
-		context->OMSetRenderTargets(1, rtvs, nullptr);
-		ID3D11ShaderResourceView* srvs[] = { srv };
-		context->PSSetShaderResources(0, 1, srvs);
+		DXManager::Get()->Convert.Context->Draw(3, 0);
 
-		context->Draw(3, 0);
-
-		ps->Release();
-		vs->Release();
 		srv->Release();
 		copy->Release();
 		rtv->Release();
-		context->Release();
-		device->Release();
 	}
 
 	void SubmitToVR(IDXGISwapChain* pSwapChain)
@@ -92,24 +80,24 @@ namespace GhostrunnerVR
 
 		D3D11_TEXTURE2D_DESC desc;
 		texture2D->GetDesc(&desc);
+		Log::Info(std::to_string(desc.Format));
 		if (desc.Format == DXGI_FORMAT_R8G8B8A8_UNORM)
 		{
-			VRManager::Get()->SubmitFrame(0, texture2D);
+			VRManager::Get()->SubmitFrame(texture2D);
 		}
-		if (desc.Format == DXGI_FORMAT_R10G10B10A2_UNORM)
+		else if (desc.Format == DXGI_FORMAT_R10G10B10A2_UNORM)
 		{
 			ID3D11Texture2D* converted;
-			Convert_R10G10B10A2(pSwapChain, texture2D, &converted);
-			VRManager::Get()->SubmitFrame(0, converted);
+			Convert_R10G10B10A2UNORM(pSwapChain, texture2D, &converted);
+			VRManager::Get()->SubmitFrame(converted);
 			converted->Release();
 		}
 		else {
-			vr::EVRCompositorError error = VRManager::Get()->SubmitFrame(0, texture2D);
+			vr::EVRCompositorError error = VRManager::Get()->SubmitFrame(texture2D);
 			if (error != vr::VRCompositorError_None)
 			{
 				Log::Warn("[GhostrunnerVR] VR compositor error (" + std::to_string(error) + ")! This probably has to do with an unsupported texture format");
 			}
-			VRManager::Get()->SubmitFrame(0, texture2D);
 		}
 
 		texture2D->Release();
@@ -119,12 +107,14 @@ namespace GhostrunnerVR
 	{
 		if (!VRManager::Get()->IsVRInitialized)
 		{
-			VRResolution res;
-			VRManager::Get()->InitVR(&res);
-			UEHelper::TriggerEvent(L"GhostrunnerVRSetResolution", { std::to_wstring(res.Width), std::to_wstring(res.Height) });
+			VRManager::Get()->InitVR();
+			return S_OK;
 		}
 		SubmitToVR(pSwapChain);
-		D3D11Present(pSwapChain, SyncInterval, Flags);
+		if (VRManager::Get()->LastEyeRendered == vr::Eye_Left)
+		{
+			D3D11Present(pSwapChain, SyncInterval, Flags);
+		}
 		return S_OK;
 	}
 
