@@ -1,39 +1,39 @@
 #include "VRManager.h"
 
-namespace GhostrunnerVR
+namespace UnrealVR
 {
-	VRManager* VRManager::Ref;
-
-	VRManager* VRManager::Get()
+	bool VRManager::InitVR()
 	{
-		if (!Ref)
-		{
-			Ref = new VRManager();
-		}
-		return Ref;
-	}
-
-	void VRManager::InitVR()
-	{
-		vr::HmdError error;
+		vr::EVRInitError error;
 		vr::IVRSystem* pSystem = vr::VR_Init(&error, vr::VRApplication_Scene);
+		if (error != vr::VRInitError_None)
+		{
+			Log::Error(std::format("[UnrealVR] Failed to init VR; error ({})", error));
+			return false;
+		}
 
 		uint32_t width;
 		uint32_t height;
 		pSystem->GetRecommendedRenderTargetSize(&width, &height);
+		
+		// FOV should be set automatically
+		/*
 		float tanLeft;
 		float tanRight;
 		float tanTop;
 		float tanBottom;
 		pSystem->GetProjectionRaw(vr::Eye_Left, &tanLeft, &tanRight, &tanTop, &tanBottom);
 		float fov = (std::abs(std::atan(tanLeft)) + std::atan(tanRight)) * 180.0f / 3.14159f;
-		UEHelper::TriggerEvent(L"GhostrunnerVRSettings", { std::to_wstring(width), std::to_wstring(height), std::to_wstring(fov), std::to_wstring(6.35f) });
+		*/
 
-		Log::Info("[GhostrunnerVR] Initialized VR system and compositor");
+		UE4::UGameplayStatics::ExecuteConsoleCommand(std::format(L"r.SetRes {}x{}f", width, height).c_str(), nullptr);
+
+		Log::Info("[UnrealVR] Initialized VR system and compositor");
 		IsVRInitialized = true;
+		return true;
 	}
 
-	vr::EVRCompositorError VRManager::SubmitFrame(ID3D11Texture2D* texture2D)
+	bool VRManager::SubmitFrame(ID3D11Texture2D* texture2D)
 	{
 		vr::Texture_t texture{ texture2D, vr::TextureType_DirectX, vr::ColorSpace_Gamma };
 		vr::EVREye eye;
@@ -50,11 +50,11 @@ namespace GhostrunnerVR
 		vr::EVRCompositorError error = vr::VRCompositor()->Submit(eye, &texture, NULL, vr::Submit_Default);
 		if (error != vr::VRCompositorError_None)
 		{
-			Log::Error("[UnrealVR] VR compositor error (%s)", error);
+			Log::Error("[UnrealVR] VR compositor error (%d)", error);
 			return false;
 		}
-		UEHelper::TriggerEvent(L"GhostrunnerVRSetEye", { std::to_wstring(LastEyeRendered) });
+		UnrealVR::Get()->ModActor->CallFunctionByNameWithArguments(std::format(L"UnrealVRSetEye {}", LastEyeRendered).c_str(), NULL, nullptr, true);
 		LastEyeRendered = eye;
-		return vr::VRCompositorError_None;
+		return true;
 	}
 }

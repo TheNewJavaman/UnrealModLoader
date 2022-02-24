@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnrealEngineModLoader", "UnrealEngineModLoader.vcxproj", "{DE3BC2AD-2683-4D76-AD72-95D98164E9C7}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LoaderAutoInjector", "..\LoaderAutoInjector\LoaderAutoInjector.vcxproj", "{ACD937DA-925A-4640-9AD0-39A381D323EA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GhostrunnerVR", "..\GhostrunnerVRMod\GhostrunnerVRMod.vcxproj", "{B455D9E0-984B-49CF-A508-90EDD2D26364}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnrealVR", "..\UnrealVR\UnrealVR.vcxproj", "{C989B44E-13A9-4916-B46D-B64E7B22EC03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,14 @@ Global
 		{B455D9E0-984B-49CF-A508-90EDD2D26364}.Release|x64.Build.0 = Release|x64
 		{B455D9E0-984B-49CF-A508-90EDD2D26364}.Release|x86.ActiveCfg = Release|Win32
 		{B455D9E0-984B-49CF-A508-90EDD2D26364}.Release|x86.Build.0 = Release|Win32
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Debug|x64.ActiveCfg = Debug|x64
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Debug|x64.Build.0 = Debug|x64
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Debug|x86.ActiveCfg = Debug|Win32
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Debug|x86.Build.0 = Debug|Win32
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Release|x64.ActiveCfg = Release|x64
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Release|x64.Build.0 = Release|x64
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Release|x86.ActiveCfg = Release|Win32
+		{C989B44E-13A9-4916-B46D-B64E7B22EC03}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

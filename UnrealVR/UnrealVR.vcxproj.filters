@@ -5,65 +5,48 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{efde8ac1-96c8-41c1-bd87-af9503a2227f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DLL">
+      <UniqueIdentifier>{6770a535-8be8-4cbd-91ea-a06bfe336665}</UniqueIdentifier>
+    </Filter>
     <Filter Include="UE4">
       <UniqueIdentifier>{0f000464-de2e-48e5-a35e-7e7cb7596649}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mod">
-      <UniqueIdentifier>{5e9905c0-4bbb-46a4-8002-8adc3490cc17}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\UnrealEngineModLoader\UE4\Basic.cpp">
       <Filter>UE4</Filter>
     </ClCompile>
     <ClCompile Include="..\UnrealEngineModLoader\UE4\CoreUObject_functions.cpp">
       <Filter>UE4</Filter>
     </ClCompile>
-    <ClCompile Include="GhostrunnerVR.cpp">
-      <Filter>Mod</Filter>
+    <ClCompile Include="UnrealVR.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DXManager.cpp">
-      <Filter>Mod</Filter>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>DLL</Filter>
     </ClCompile>
     <ClCompile Include="VRManager.cpp">
-      <Filter>Mod</Filter>
-    </ClCompile>
-    <ClCompile Include="UEHelper.cpp">
-      <Filter>Mod</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="D3D11Manager.cpp">
-      <Filter>Mod</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\UnrealEngineModLoader\UE4\Ue4.hpp">
       <Filter>UE4</Filter>
     </ClInclude>
-    <ClInclude Include="GhostrunnerVR.h">
-      <Filter>Mod</Filter>
-    </ClInclude>
-    <ClInclude Include="DXManager.h">
-      <Filter>Mod</Filter>
+    <ClInclude Include="UnrealVR.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VRManager.h">
-      <Filter>Mod</Filter>
-    </ClInclude>
-    <ClInclude Include="UEHelper.h">
-      <Filter>Mod</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="D3D11Manager.h">
-      <Filter>Mod</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Mod</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Mod</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
