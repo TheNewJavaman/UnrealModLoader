@@ -198,7 +198,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;UNREALENGINEMODLOADER_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\UnrealEngineModLoader\;$(MSBuildProjectDirectory)\MinHook\;$(MSBuildProjectDirectory)\packages\minhook.1.3\lib\native\lib;$(MSBuildProjectDirectory)\INI\;$(SolutionDir)UnrealModLoader\UnrealEngineModLoader\UnrealEngineModLoader;$(SolutionDir)UnrealModLoader\UnrealEngineModLoader\UE4;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\UnrealEngineModLoader\;$(MSBuildProjectDirectory)\MinHook\;$(MSBuildProjectDirectory)\packages\minhook.1.3\lib\native\lib;$(MSBuildProjectDirectory)\INI\;$(SolutionDir)UnrealModLoader\UnrealEngineModLoader\UnrealEngineModLoader;$(SolutionDir)UnrealModLoader\UnrealEngineModLoader\UE4;$(SolutionDir)UnrealModLoader\UnrealEngineModLoader\MinHook;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <DisableSpecificWarnings>4996;4716;%(DisableSpecificWarnings)</DisableSpecificWarnings>
