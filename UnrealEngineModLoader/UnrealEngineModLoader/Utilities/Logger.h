@@ -99,13 +99,15 @@ public:
 	static bool DumpLog()
 	{
 		FILE* Log = NULL;
-		fopen_s(&Log, "UML-Log.txt", "w+");
-		for (size_t i = 0; i < LogArray.size(); i++)
+		if (!fopen_s(&Log, "UML-Log.txt", "w+"))
 		{
-			auto currentstring = LogArray[i];
-			fprintf(Log, "%s\n", currentstring.c_str());
+			for (size_t i = 0; i < LogArray.size(); i++)
+			{
+				auto currentstring = LogArray[i];
+				fprintf(Log, "%s\n", currentstring.c_str());
+			}
+			fclose(Log);
 		}
-		fclose(Log);
 	}
 
 private:
