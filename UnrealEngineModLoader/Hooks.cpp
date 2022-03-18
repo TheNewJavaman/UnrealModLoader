@@ -262,6 +262,7 @@ namespace Hooks
 							Global::GetGlobals()->eventSystem.dispatchEvent("PostBeginPlay", Global::GetGlobals()->ModInfoList[i].ModName, CurrentModActor);
 						}
 					}
+					Global::GetGlobals()->eventSystem.dispatchEvent("BeginPlaySingle");
 				}
 				Global::GetGlobals()->eventSystem.dispatchEvent("BeginPlay", Actor);
 			}
