@@ -8,6 +8,7 @@
 #include "Utilities/Version.h"
 #include "../Hooks.h"
 #include "../UE4/Ue4.hpp"
+#include <Shlobj.h>
 GameProfile GameProfile::SelectedGameProfile;
 
 DWORD StringToDWord(std::string str)
@@ -37,7 +38,7 @@ void SetupProfile(std::string Path)
 	gamename = gamename.substr(0, gamename.find_last_of("."));
 	gamename = gamename.substr(gamename.find_last_of("/\\"));
 	gamename = gamename.substr(1);
-	auto Game = Path + "\\Profiles\\";
+	auto Game = Path + "\\UnrealModLoaderProfiles\\";
 	Game = Game + gamename;
 	GameProfile::SelectedGameProfile.LoaderPath = Path;
 	auto LoaderInfoInI = Path + "\\ModLoaderInfo.ini";
@@ -434,8 +435,13 @@ void SetupProfile(std::string Path)
 
 void GameProfile::CreateGameProfile()
 {
-	auto Module = GetModuleHandleA("UnrealEngineModLoader.dll");
-	std::string path = GetModuleFilePath(Module);
-	path = path.substr(0, path.find_last_of("/\\"));
+	// Get the correct UML profile from the WinUI app's local app data
+	//auto Module = GetModuleHandleA("UnrealEngineModLoader.dll");
+	//std::string path = GetModuleFilePath(Module);
+	//path = path.substr(0, path.find_last_of("/\\"));
+	PWSTR localAppData;
+	SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &localAppData);
+	const auto localAppDataStr = std::wstring(localAppData);
+	const auto path = std::string(localAppDataStr.begin(), localAppDataStr.end()) + "\\Packages\\18566GabrielPizarro.UnrealVR_bw3abc41ce2pp\\LocalState";
 	SetupProfile(path);
 }
