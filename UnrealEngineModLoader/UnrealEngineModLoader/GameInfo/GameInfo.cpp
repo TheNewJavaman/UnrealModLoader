@@ -436,12 +436,10 @@ void SetupProfile(std::string Path)
 void GameProfile::CreateGameProfile()
 {
 	// Get the correct UML profile from the WinUI app's local app data
-	//auto Module = GetModuleHandleA("UnrealEngineModLoader.dll");
-	//std::string path = GetModuleFilePath(Module);
-	//path = path.substr(0, path.find_last_of("/\\"));
 	PWSTR localAppData;
 	SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, nullptr, &localAppData);
 	const auto localAppDataStr = std::wstring(localAppData);
-	const auto path = std::string(localAppDataStr.begin(), localAppDataStr.end()) + "\\Packages\\18566GabrielPizarro.UnrealVR_bw3abc41ce2pp\\LocalState";
+	const auto path = std::string(localAppDataStr.begin(), localAppDataStr.end()) +
+		R"(\Packages\18566GabrielPizarro.UnrealVR_bw3abc41ce2pp\LocalState)";
 	SetupProfile(path);
 }
