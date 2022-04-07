@@ -424,6 +424,7 @@ void SetupProfile(std::string Path)
 			GameProfile::SelectedGameProfile.StaticConstructObject_Internal = (DWORD64)MEM::GetAddressPTR(StaticConstructObject_Internal, 0x1, 0x5);
 			Log::Info("StaticConstructObject_Internal 0x%p", (void*)GameProfile::SelectedGameProfile.StaticConstructObject_Internal);
 		}
+		GameProfile::bLoaded = true;
 		Log::Info("Setup %s", gamename.c_str());
 		Hooks::SetupHooks();
 	}
@@ -442,4 +443,9 @@ void GameProfile::CreateGameProfile()
 	const auto path = std::string(localAppDataStr.begin(), localAppDataStr.end()) +
 		R"(\Packages\18566GabrielPizarro.UnrealVR_bw3abc41ce2pp\LocalState)";
 	SetupProfile(path);
+}
+
+LOADER_API bool IsGameInfoLoaded()
+{
+	return GameProfile::bLoaded;
 }

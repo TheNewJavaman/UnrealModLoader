@@ -81,4 +81,7 @@ public:
 
 	static GameProfile SelectedGameProfile;
 	static void CreateGameProfile();
+	static inline bool bLoaded = false;
 };
+
+LOADER_API bool IsGameInfoLoaded();
