@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <vector>
 #include <string>
+#include <mutex>
 
 #include "../UMLDefs.h"
 
@@ -22,6 +23,7 @@ private:
 	template <typename ...Args>
 	static void LogMsg(MsgType type, const std::string& format, Args&& ...args)
 	{
+		std::lock_guard guard(mtx);
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 		fprintf(LOG_STREAM, "[");
@@ -99,17 +101,16 @@ public:
 	static bool DumpLog()
 	{
 		FILE* Log = NULL;
-		if (!fopen_s(&Log, "UML-Log.txt", "w+"))
+		fopen_s(&Log, "UML-Log.txt", "w+");
+		for (size_t i = 0; i < LogArray.size(); i++)
 		{
-			for (size_t i = 0; i < LogArray.size(); i++)
-			{
-				auto currentstring = LogArray[i];
-				fprintf(Log, "%s\n", currentstring.c_str());
-			}
-			fclose(Log);
+			auto currentstring = LogArray[i];
+			fprintf(Log, "%s\n", currentstring.c_str());
 		}
+		fclose(Log);
 	}
 
 private:
+	static std::mutex mtx;
 	static std::vector<std::string> LogArray;
 };
