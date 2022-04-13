@@ -23,7 +23,7 @@ private:
 	template <typename ...Args>
 	static void LogMsg(MsgType type, const std::string& format, Args&& ...args)
 	{
-		std::lock_guard guard(mtx);
+		std::lock_guard<std::mutex> guard(mtx);
 		
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
