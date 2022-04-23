@@ -368,6 +368,8 @@ struct FTwoVectors
 struct alignas(16) FPlane : public FVector
 {
 	float                                              W;                                                        // 0x000C(0x0004) (Edit, BlueprintVisible, ZeroConstructor, SaveGame, IsPlainOldData)
+
+	inline FPlane(float x, float y, float z, float w) : FVector(x, y, z), W(w) {}
 };
 
 // ScriptStruct CoreUObject.Rotator
